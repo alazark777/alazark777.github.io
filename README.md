@@ -1,6 +1,6 @@
 # AI / Data Science Portfolio
 
-Static Astro portfolio for projects and writing. Hosted on GitHub Pages. No paid services required.
+Static Astro portfolio for projects and articles. Hosted on GitHub Pages. No paid services required.
 
 ## Local development
 
@@ -23,7 +23,7 @@ Ask the implementation agent:
 Add this project: <URL>
 ```
 
-## Add writing
+## Add an article
 
 Ask the implementation agent:
 

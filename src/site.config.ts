@@ -4,11 +4,11 @@
  */
 export const site = {
   name: 'Alazar Kessela',
-  headline: 'AI / Data Science Portfolio',
+  headline: 'Applied AI & Data Science',
   description:
-    'Projects and writing in applied AI, machine learning, and data science.',
+    'Projects and articles on practical AI systems, machine learning, generative AI, retrieval, and data science.',
   tagline:
-    'Building practical AI systems across machine learning, generative AI, RAG, agents, and data products.',
+    'Exploring practical AI systems—from machine learning foundations to generative AI applications, retrieval, agents, and the data workflows behind them.',
 
   /** Production origin for sitemap, canonical URLs, and Open Graph. */
   url: 'https://alazark777.github.io',
@@ -26,6 +26,7 @@ export const site = {
 
   showNewsletterSignup: false,
   newsletterSignupUrl: '',
+  showThemeToggle: true,
 
   focusAreas: [
     'AI Engineering',

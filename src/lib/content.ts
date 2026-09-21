@@ -1,7 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 
 export type ProjectEntry = CollectionEntry<'projects'>;
-export type WritingEntry = CollectionEntry<'writing'>;
+export type ArticleEntry = CollectionEntry<'articles'>;
 
 /**
  * Returns non-draft projects sorted by date (newest first).
@@ -28,10 +28,10 @@ export async function getFeaturedProjects(
 }
 
 /**
- * Returns non-draft writing sorted by date (newest first).
+ * Returns non-draft articles sorted by date (newest first).
  */
-export async function getPublishedWriting(): Promise<WritingEntry[]> {
-  const entries = await getCollection('writing', ({ data }) => !data.draft);
+export async function getPublishedArticles(): Promise<ArticleEntry[]> {
+  const entries = await getCollection('articles', ({ data }) => !data.draft);
   return entries.sort(
     (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
   );

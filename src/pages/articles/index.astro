@@ -1,17 +1,17 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import WritingCard from '../../components/WritingCard.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
 import ComingSoon from '../../components/ComingSoon.astro';
-import { getPublishedWriting } from '../../lib/content';
+import { getPublishedArticles } from '../../lib/content';
 
-const entries = await getPublishedWriting();
+const entries = await getPublishedArticles();
 const tags = [...new Set(entries.flatMap((e) => e.data.tags))].sort();
 ---
 
-<BaseLayout title="Writing" description="Technical notes, tutorials, and AI engineering articles.">
+<BaseLayout title="Articles" description="Technical notes, tutorials, and AI engineering articles.">
   <section class="container-page py-12 sm:py-16">
     <header class="mb-8 max-w-2xl">
-      <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Writing</h1>
+      <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Articles</h1>
       <p class="mt-3 text-ink-muted">
         Newsletter issues, technical notes, tutorials, and architecture write-ups.
       </p>
@@ -20,7 +20,7 @@ const tags = [...new Set(entries.flatMap((e) => e.data.tags))].sort();
     {entries.length > 0 && tags.length > 0 && (
       <fieldset class="mb-8">
         <legend class="mb-1.5 text-sm font-medium text-ink">Filter by tag</legend>
-        <div class="flex flex-wrap gap-2" id="writing-tags" role="group" aria-label="Filter by tag">
+        <div class="flex flex-wrap gap-2" id="article-tags" role="group" aria-label="Filter by tag">
           <button
             type="button"
             data-tag=""
@@ -42,28 +42,28 @@ const tags = [...new Set(entries.flatMap((e) => e.data.tags))].sort();
     )}
 
     {entries.length > 0 ? (
-      <div id="writing-grid" class="grid gap-4 sm:grid-cols-2">
+      <div id="article-grid" class="grid gap-4 sm:grid-cols-2">
         {entries.map((entry) => (
-          <WritingCard entry={entry} />
+          <ArticleCard entry={entry} />
         ))}
       </div>
     ) : (
       <ComingSoon
-        title="Writing coming soon"
+        title="Articles coming soon"
         description="Technical articles and engineering notes will appear here."
       />
     )}
 
-    <p id="writing-empty" class="mt-8 hidden text-sm text-ink-muted" hidden>
-      No writing matches this tag.
+    <p id="article-empty" class="mt-8 hidden text-sm text-ink-muted" hidden>
+      No articles match this tag.
     </p>
   </section>
 </BaseLayout>
 
 <script>
   const tagButtons = document.querySelectorAll<HTMLButtonElement>('.tag-filter');
-  const cards = document.querySelectorAll<HTMLElement>('[data-writing-card]');
-  const empty = document.getElementById('writing-empty');
+  const cards = document.querySelectorAll<HTMLElement>('[data-article-card]');
+  const empty = document.getElementById('article-empty');
   let activeTag = '';
 
   function applyFilters() {

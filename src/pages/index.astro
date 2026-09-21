@@ -1,13 +1,13 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProjectCard from '../components/ProjectCard.astro';
-import WritingCard from '../components/WritingCard.astro';
+import ArticleCard from '../components/ArticleCard.astro';
 import ComingSoon from '../components/ComingSoon.astro';
 import { site } from '../site.config';
-import { getFeaturedProjects, getPublishedWriting } from '../lib/content';
+import { getFeaturedProjects, getPublishedArticles } from '../lib/content';
 
 const featuredProjects = await getFeaturedProjects(3);
-const recentWriting = (await getPublishedWriting()).slice(0, 3);
+const recentArticles = (await getPublishedArticles()).slice(0, 3);
 const base = import.meta.env.BASE_URL;
 ---
 
@@ -24,15 +24,15 @@ const base = import.meta.env.BASE_URL;
       <div class="mt-8 flex flex-wrap gap-3">
         <a
           href={`${base}projects/`}
-          class="inline-flex rounded-md bg-accent px-4 py-2.5 text-sm font-medium text-white no-underline hover:opacity-90 hover:no-underline"
+          class="button-primary inline-flex rounded-md bg-accent px-4 py-2.5 text-sm font-medium text-white no-underline hover:opacity-90 hover:no-underline"
         >
           View projects
         </a>
         <a
-          href={`${base}writing/`}
+          href={`${base}articles/`}
           class="inline-flex rounded-md border border-border bg-surface-raised px-4 py-2.5 text-sm font-medium text-ink no-underline hover:border-border-strong hover:no-underline"
         >
-          Read writing
+          Read articles
         </a>
       </div>
     </div>
@@ -54,33 +54,29 @@ const base = import.meta.env.BASE_URL;
         ))}
       </div>
     ) : (
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <ComingSoon title="Project coming soon" description="A detailed AI engineering case study will appear here." />
-        <ComingSoon title="Project coming soon" description="A detailed AI engineering case study will appear here." />
-        <ComingSoon title="Project coming soon" description="A detailed AI engineering case study will appear here." />
-      </div>
+      <ComingSoon title="Project coming soon" description="A detailed AI engineering case study will appear here." />
     )}
   </section>
 
   <section class="border-y border-border bg-surface-raised">
-    <div class="container-page py-14" aria-labelledby="recent-writing">
+    <div class="container-page py-14" aria-labelledby="recent-articles">
       <div class="mb-6 flex items-end justify-between gap-4">
         <div>
-          <h2 id="recent-writing" class="text-2xl font-semibold tracking-tight">Recent Writing</h2>
+          <h2 id="recent-articles" class="text-2xl font-semibold tracking-tight">Recent Articles</h2>
           <p class="mt-1 text-sm text-ink-muted">Technical notes, experiments, and practical AI engineering articles.</p>
         </div>
-        <a href={`${base}writing/`} class="text-sm no-underline hover:underline">All writing</a>
+        <a href={`${base}articles/`} class="text-sm no-underline hover:underline">All articles</a>
       </div>
 
-      {recentWriting.length > 0 ? (
+      {recentArticles.length > 0 ? (
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {recentWriting.map((entry) => (
-            <WritingCard entry={entry} />
+          {recentArticles.map((entry) => (
+            <ArticleCard entry={entry} />
           ))}
         </div>
       ) : (
         <ComingSoon
-          title="Writing coming soon"
+          title="Articles coming soon"
           description="Technical notes, experiments, and practical AI engineering articles will appear here."
         />
       )}

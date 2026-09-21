@@ -1,5 +1,5 @@
 ---
-title: "AI Engineering Project — Coming Soon"
+title: "Coming soon"
 description: "A detailed AI engineering case study will appear here."
 date: 2026-01-01
 status: "coming-soon"

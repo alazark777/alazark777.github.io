@@ -4,7 +4,7 @@ import ContentLayout from '../../layouts/ContentLayout.astro';
 import { estimateReadingMinutes } from '../../lib/content';
 
 export async function getStaticPaths() {
-  const entries = await getCollection('writing', ({ data }) => !data.draft);
+  const entries = await getCollection('articles', ({ data }) => !data.draft);
   return entries.map((entry) => ({
     params: { slug: entry.id },
     props: { entry },
@@ -27,6 +27,6 @@ const canonical = entry.data.canonical_url || undefined;
 >
   <Content />
   <p class="mt-10 text-sm text-ink-subtle">
-    <a href={`${import.meta.env.BASE_URL}writing/`}>← Back to writing</a>
+    <a href={`${import.meta.env.BASE_URL}articles/`}>← Back to articles</a>
   </p>
 </ContentLayout>

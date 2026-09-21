@@ -17,6 +17,26 @@
   --color-focus: #0f6e6a;
 }
 
+html[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-ink: #edf2f1;
+  --color-ink-muted: #b5c2c0;
+  --color-ink-subtle: #8d9b99;
+  --color-surface: #101515;
+  --color-surface-raised: #18201f;
+  --color-border: #30403e;
+  --color-border-strong: #4a5b58;
+  --color-accent: #63c8bd;
+  --color-accent-soft: #173b38;
+  --color-placeholder: #202b2a;
+  --color-focus: #8ee0d5;
+}
+
+html[data-theme='dark'] .button-primary {
+  color: var(--color-surface);
+}
+
 @layer base {
   html {
     color-scheme: light;
@@ -44,6 +64,10 @@
   ::selection {
     background: var(--color-accent-soft);
     color: var(--color-ink);
+  }
+
+  button {
+    font: inherit;
   }
 }
 

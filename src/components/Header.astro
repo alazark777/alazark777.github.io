@@ -4,7 +4,7 @@ import { site } from '../site.config';
 const nav = [
   { href: '/', label: 'Home' },
   { href: '/projects/', label: 'Projects' },
-  { href: '/writing/', label: 'Writing' },
+  { href: '/articles/', label: 'Articles' },
   { href: '/about/', label: 'About' },
 ] as const;
 
@@ -66,6 +66,46 @@ function isActive(href: string): boolean {
           Email
         </a>
       )}
+      {site.showThemeToggle && (
+        <button
+          id="theme-toggle"
+          type="button"
+          class="rounded-md border border-border bg-surface-raised px-2.5 py-1.5 text-xs font-medium text-ink-muted transition-colors hover:border-border-strong hover:text-ink"
+          aria-label="Switch to dark theme"
+          aria-pressed="false"
+        >
+          <span aria-hidden="true">◐</span>
+          <span class="sr-only">Dark theme</span>
+        </button>
+      )}
     </div>
   </div>
 </header>
+
+{site.showThemeToggle && (
+  <script>
+    const themeToggle = document.getElementById('theme-toggle');
+
+    function updateThemeToggle() {
+      const isDark = document.documentElement.dataset.theme === 'dark';
+      if (!themeToggle) return;
+      themeToggle.setAttribute('aria-pressed', String(isDark));
+      themeToggle.setAttribute(
+        'aria-label',
+        isDark ? 'Switch to light theme' : 'Switch to dark theme',
+      );
+      themeToggle.innerHTML = isDark
+        ? '<span aria-hidden="true">☼</span><span class="sr-only">Light theme</span>'
+        : '<span aria-hidden="true">◐</span><span class="sr-only">Dark theme</span>';
+    }
+
+    themeToggle?.addEventListener('click', () => {
+      const isDark = document.documentElement.dataset.theme === 'dark';
+      document.documentElement.dataset.theme = isDark ? 'light' : 'dark';
+      localStorage.setItem('portfolio-theme', isDark ? 'light' : 'dark');
+      updateThemeToggle();
+    });
+
+    updateThemeToggle();
+  </script>
+)}
