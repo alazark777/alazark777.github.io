@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import WritingCard from '../../components/WritingCard.astro';
+import ComingSoon from '../../components/ComingSoon.astro';
+import { getPublishedWriting } from '../../lib/content';
+
+const entries = await getPublishedWriting();
+const tags = [...new Set(entries.flatMap((e) => e.data.tags))].sort();
+---
+
+<BaseLayout title="Writing" description="Technical notes, tutorials, and AI engineering articles.">
+  <section class="container-page py-12 sm:py-16">
+    <header class="mb-8 max-w-2xl">
+      <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Writing</h1>
+      <p class="mt-3 text-ink-muted">
+        Newsletter issues, technical notes, tutorials, and architecture write-ups.
+      </p>
+    </header>
+
+    {entries.length > 0 && tags.length > 0 && (
+      <fieldset class="mb-8">
+        <legend class="mb-1.5 text-sm font-medium text-ink">Filter by tag</legend>
+        <div class="flex flex-wrap gap-2" id="writing-tags" role="group" aria-label="Filter by tag">
+          <button
+            type="button"
+            data-tag=""
+            class="tag-filter is-active rounded-md border border-accent bg-accent-soft px-2.5 py-1 text-xs font-medium text-accent"
+          >
+            All
+          </button>
+          {tags.map((tag) => (
+            <button
+              type="button"
+              data-tag={tag.toLowerCase()}
+              class="tag-filter rounded-md border border-border bg-surface-raised px-2.5 py-1 text-xs font-medium text-ink-muted hover:border-border-strong"
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+    )}
+
+    {entries.length > 0 ? (
+      <div id="writing-grid" class="grid gap-4 sm:grid-cols-2">
+        {entries.map((entry) => (
+          <WritingCard entry={entry} />
+        ))}
+      </div>
+    ) : (
+      <ComingSoon
+        title="Writing coming soon"
+        description="Technical articles and engineering notes will appear here."
+      />
+    )}
+
+    <p id="writing-empty" class="mt-8 hidden text-sm text-ink-muted" hidden>
+      No writing matches this tag.
+    </p>
+  </section>
+</BaseLayout>
+
+<script>
+  const tagButtons = document.querySelectorAll<HTMLButtonElement>('.tag-filter');
+  const cards = document.querySelectorAll<HTMLElement>('[data-writing-card]');
+  const empty = document.getElementById('writing-empty');
+  let activeTag = '';
+
+  function applyFilters() {
+    let visible = 0;
+    cards.forEach((card) => {
+      const tags = card.dataset.tags ?? '';
+      const show = !activeTag || tags.split('|').includes(activeTag);
+      card.hidden = !show;
+      if (show) visible += 1;
+    });
+    if (empty) {
+      empty.hidden = visible !== 0;
+      empty.classList.toggle('hidden', visible !== 0);
+    }
+  }
+
+  tagButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      activeTag = button.dataset.tag ?? '';
+      tagButtons.forEach((btn) => {
+        const on = btn === button;
+        btn.classList.toggle('is-active', on);
+        btn.classList.toggle('border-accent', on);
+        btn.classList.toggle('bg-accent-soft', on);
+        btn.classList.toggle('text-accent', on);
+        btn.classList.toggle('border-border', !on);
+        btn.classList.toggle('bg-surface-raised', !on);
+        btn.classList.toggle('text-ink-muted', !on);
+      });
+      applyFilters();
+    });
+  });
+</script>

@@ -1,0 +1,48 @@
+---
+import Tag from './Tag.astro';
+import type { WritingEntry } from '../lib/content';
+import { estimateReadingMinutes, formatDate } from '../lib/content';
+
+interface Props {
+  entry: WritingEntry;
+}
+
+const { entry } = Astro.props;
+const { data, body } = entry;
+const href = `${import.meta.env.BASE_URL}writing/${entry.id}/`;
+const minutes = estimateReadingMinutes(body);
+---
+
+<article
+  class="rounded-lg border border-border bg-surface-raised p-5 transition-colors hover:border-border-strong"
+  data-writing-card
+  data-tags={data.tags.join('|').toLowerCase()}
+>
+  <div class="flex flex-wrap items-center gap-2 text-xs text-ink-subtle">
+    <time datetime={data.date.toISOString()}>{formatDate(data.date)}</time>
+    <span aria-hidden="true">·</span>
+    <span>{minutes} min read</span>
+    {data.featured && (
+      <>
+        <span aria-hidden="true">·</span>
+        <span class="font-medium text-accent">Featured</span>
+      </>
+    )}
+  </div>
+
+  <h3 class="mt-2 text-lg font-semibold tracking-tight">
+    <a href={href} class="text-ink no-underline hover:text-accent hover:underline">
+      {data.title}
+    </a>
+  </h3>
+
+  <p class="mt-2 text-sm text-ink-muted">{data.description}</p>
+
+  {data.tags.length > 0 && (
+    <ul class="mt-4 flex flex-wrap gap-2" aria-label="Tags">
+      {data.tags.map((tag) => (
+        <li><Tag label={tag} /></li>
+      ))}
+    </ul>
+  )}
+</article>

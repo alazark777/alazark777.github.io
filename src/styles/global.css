@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-ink: #12141a;
+  --color-ink-muted: #4a5160;
+  --color-ink-subtle: #6b7385;
+  --color-surface: #f6f7f9;
+  --color-surface-raised: #ffffff;
+  --color-border: #d8dde6;
+  --color-border-strong: #b8c0ce;
+  --color-accent: #0f6e6a;
+  --color-accent-soft: #e6f3f2;
+  --color-placeholder: #eceff4;
+  --color-focus: #0f6e6a;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-surface font-sans text-ink antialiased;
+    line-height: 1.6;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  a {
+    @apply text-accent underline-offset-4 transition-colors;
+  }
+
+  a:hover {
+    @apply underline;
+  }
+
+  ::selection {
+    background: var(--color-accent-soft);
+    color: var(--color-ink);
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-5xl px-5 sm:px-8;
+  }
+
+  .prose-content {
+    @apply max-w-none text-ink;
+  }
+
+  .prose-content h2 {
+    @apply mt-10 mb-3 text-xl font-semibold tracking-tight;
+  }
+
+  .prose-content h3 {
+    @apply mt-8 mb-2 text-lg font-semibold tracking-tight;
+  }
+
+  .prose-content p {
+    @apply mb-4 text-ink-muted;
+  }
+
+  .prose-content ul {
+    @apply mb-4 list-disc space-y-1 pl-5 text-ink-muted;
+  }
+
+  .prose-content a {
+    @apply text-accent;
+  }
+
+  .prose-content code {
+    @apply rounded bg-placeholder px-1.5 py-0.5 font-mono text-sm text-ink;
+  }
+
+  .prose-content pre {
+    @apply mb-4 overflow-x-auto rounded-lg border border-border bg-ink p-4 text-sm text-surface;
+  }
+
+  .prose-content pre code {
+    @apply bg-transparent p-0 text-surface;
+  }
+}

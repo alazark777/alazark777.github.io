@@ -1,0 +1,52 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import { formatDate } from '../lib/content';
+
+interface Props {
+  title: string;
+  description: string;
+  date?: Date;
+  tags?: string[];
+  readingMinutes?: number;
+  canonical?: string;
+}
+
+const {
+  title,
+  description,
+  date,
+  tags = [],
+  readingMinutes,
+  canonical,
+} = Astro.props;
+---
+
+<BaseLayout title={title} description={description} canonical={canonical} ogType="article">
+  <article class="container-page py-12 sm:py-16">
+    <header class="mb-10 max-w-3xl border-b border-border pb-8">
+      <p class="mb-3 text-sm text-ink-subtle">
+        {date && <time datetime={date.toISOString()}>{formatDate(date)}</time>}
+        {readingMinutes !== undefined && (
+          <>
+            {date && <span aria-hidden="true"> · </span>}
+            <span>{readingMinutes} min read</span>
+          </>
+        )}
+      </p>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink sm:text-4xl">{title}</h1>
+      <p class="mt-4 text-lg text-ink-muted">{description}</p>
+      {tags.length > 0 && (
+        <ul class="mt-6 flex flex-wrap gap-2" aria-label="Tags">
+          {tags.map((tag) => (
+            <li class="rounded-md border border-border bg-surface-raised px-2.5 py-1 text-xs font-medium text-ink-muted">
+              {tag}
+            </li>
+          ))}
+        </ul>
+      )}
+    </header>
+    <div class="prose-content max-w-3xl">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>

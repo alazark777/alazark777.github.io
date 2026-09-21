@@ -1,0 +1,75 @@
+---
+import Tag from './Tag.astro';
+import type { ProjectEntry } from '../lib/content';
+import { formatDate } from '../lib/content';
+
+interface Props {
+  project: ProjectEntry;
+}
+
+const { project } = Astro.props;
+const { data } = project;
+const isPlaceholder = data.status === 'coming-soon';
+const href = `${import.meta.env.BASE_URL}projects/${project.id}/`;
+---
+
+<article
+  class:list={[
+    'flex flex-col rounded-lg border p-5 transition-colors',
+    isPlaceholder
+      ? 'border-dashed border-border-strong bg-placeholder/60'
+      : 'border-border bg-surface-raised hover:border-border-strong',
+  ]}
+  data-project-card
+  data-title={data.title.toLowerCase()}
+  data-description={data.description.toLowerCase()}
+  data-tags={data.tags.join('|').toLowerCase()}
+  data-status={data.status}
+>
+  {isPlaceholder ? (
+    <p class="text-xs font-medium uppercase tracking-wide text-ink-subtle">Coming soon</p>
+  ) : (
+    <div class="flex items-center justify-between gap-3 text-xs text-ink-subtle">
+      <time datetime={data.date.toISOString()}>{formatDate(data.date)}</time>
+      <span class="capitalize">{data.status.replace('-', ' ')}</span>
+    </div>
+  )}
+
+  <h3 class="mt-2 text-lg font-semibold tracking-tight text-ink">
+    {isPlaceholder ? (
+      data.title
+    ) : (
+      <a href={href} class="text-ink no-underline hover:text-accent hover:underline">
+        {data.title}
+      </a>
+    )}
+  </h3>
+
+  <p class="mt-2 flex-1 text-sm text-ink-muted">{data.description}</p>
+
+  {data.tags.length > 0 && (
+    <ul class="mt-4 flex flex-wrap gap-2" aria-label="Tags">
+      {data.tags.map((tag) => (
+        <li><Tag label={tag} /></li>
+      ))}
+    </ul>
+  )}
+
+  {!isPlaceholder && (
+    <div class="mt-4 flex flex-wrap gap-3 text-sm">
+      <a href={href} class="font-medium no-underline hover:underline">View details</a>
+      {data.source_url && (
+        <a href={data.source_url} rel="noopener noreferrer" target="_blank" class="no-underline hover:underline">
+          Source
+        </a>
+      )}
+      {data.demo_url ? (
+        <a href={data.demo_url} rel="noopener noreferrer" target="_blank" class="no-underline hover:underline">
+          Demo
+        </a>
+      ) : data.source_url ? (
+        <span class="text-ink-subtle">Demo coming soon</span>
+      ) : null}
+    </div>
+  )}
+</article>

@@ -1,0 +1,32 @@
+---
+import { getCollection, render } from 'astro:content';
+import ContentLayout from '../../layouts/ContentLayout.astro';
+import { estimateReadingMinutes } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('writing', ({ data }) => !data.draft);
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const minutes = estimateReadingMinutes(entry.body);
+const canonical = entry.data.canonical_url || undefined;
+---
+
+<ContentLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  date={entry.data.date}
+  tags={entry.data.tags}
+  readingMinutes={minutes}
+  canonical={canonical}
+>
+  <Content />
+  <p class="mt-10 text-sm text-ink-subtle">
+    <a href={`${import.meta.env.BASE_URL}writing/`}>← Back to writing</a>
+  </p>
+</ContentLayout>

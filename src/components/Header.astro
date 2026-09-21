@@ -1,0 +1,71 @@
+---
+import { site } from '../site.config';
+
+const nav = [
+  { href: '/', label: 'Home' },
+  { href: '/projects/', label: 'Projects' },
+  { href: '/writing/', label: 'Writing' },
+  { href: '/about/', label: 'About' },
+] as const;
+
+const pathname = Astro.url.pathname;
+const base = import.meta.env.BASE_URL;
+
+function withBase(path: string): string {
+  if (path === '/') return base;
+  return `${base.replace(/\/$/, '')}${path}`;
+}
+
+function isActive(href: string): boolean {
+  const normalized = pathname.replace(/\/$/, '') || '/';
+  if (href === '/') return normalized === '' || normalized === '/';
+  return normalized.startsWith(href.replace(/\/$/, ''));
+}
+---
+
+<header class="border-b border-border bg-surface-raised/90 backdrop-blur-sm">
+  <div class="container-page flex flex-wrap items-center justify-between gap-4 py-4">
+    <a href={withBase('/')} class="no-underline hover:no-underline">
+      <span class="text-sm font-semibold tracking-tight text-ink">{site.name}</span>
+    </a>
+
+    <nav aria-label="Primary">
+      <ul class="flex flex-wrap items-center gap-1 sm:gap-2">
+        {nav.map((item) => (
+          <li>
+            <a
+              href={withBase(item.href)}
+              class:list={[
+                'rounded-md px-2.5 py-1.5 text-sm no-underline hover:no-underline',
+                isActive(item.href)
+                  ? 'bg-accent-soft font-medium text-accent'
+                  : 'text-ink-muted hover:bg-placeholder hover:text-ink',
+              ]}
+              aria-current={isActive(item.href) ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-3 text-sm">
+      {site.github && (
+        <a href={site.github} class="text-ink-muted no-underline hover:text-accent hover:underline" rel="noopener noreferrer" target="_blank">
+          GitHub
+        </a>
+      )}
+      {site.linkedin && (
+        <a href={site.linkedin} class="text-ink-muted no-underline hover:text-accent hover:underline" rel="noopener noreferrer" target="_blank">
+          LinkedIn
+        </a>
+      )}
+      {site.email && (
+        <a href={`mailto:${site.email}`} class="text-ink-muted no-underline hover:text-accent hover:underline">
+          Email
+        </a>
+      )}
+    </div>
+  </div>
+</header>
