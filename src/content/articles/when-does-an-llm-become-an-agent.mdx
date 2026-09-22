@@ -1,0 +1,63 @@
+---
+title: "When Does an LLM Become an Agent?"
+description: "A practical guide to distinguishing direct LLM calls, fixed workflows, and agentic systems through a broken sales-report example."
+date: 2026-09-21
+tags: ["AI Engineering", "Agents", "LLMs", "Evaluation"]
+featured: true
+draft: false
+---
+import Mermaid from '../../components/Mermaid.astro';
+
+*A broken sales report reveals the difference between asking a model for an answer and giving it control over the next step.*
+
+Imagine your monthly sales report stops working. The Python script cannot find a column it expects in the latest data file. You give a large language model the error message, the relevant code, and a few rows of data. It suggests a repair. You review the suggestion, edit the script, and run it again. The model helped solve the problem, but you still directed the investigation. What would have to change for the software to take on that responsibility?
+
+Start with the model’s role. An LLM generates an output from the information supplied to it, known as its **context**. That output might be an explanation, proposed code, or a structured request for an operation. Producing a request does not execute it: application software must run the operation. A **tool** is a function that software makes available for this purpose, such as reading a file or running a test. Its result can then become part of the model’s next context. ([huggingface.co][1])
+
+An **LLM-based agent** is a system that lets the model choose and revise actions toward a goal, using the results of earlier actions. The same underlying model can power either your original conversation or this system; adding agency does not inherently require retraining it. The change happens in the application around the model and the decisions it delegates. Definitions vary across the industry, but this distinction gives us a practical way to reason about the architecture. ([huggingface.co][2])
+
+Before delegating those decisions, consider how much of the repair you could automate with a known procedure. Software could collect the error, read the failing function and file headers, ask the model for a proposed edit, apply it to a working copy, and run checks. The developer could specify that a failed check triggers another attempt, with unresolved cases sent to a person. You would no longer perform every step manually.
+
+This is an **LLM-powered workflow**: application logic prescribes how the work proceeds. It can call tools, branch on results, and repeat steps. Those features alone do not establish that the model directs the process. ([www.anthropic.com][3]) For a recurring report with familiar failure patterns, such a workflow could be a sensible design. Its sequence is explicit, and you can inspect exactly where a failed check sends the task next.
+
+Now suppose the report can fail in ways that require investigation. You give the system a goal: diagnose the failure and propose a repair that preserves the report’s meaning. It can read relevant files, inspect code, and run checks in a test environment. The model first requests the file headers. The application returns them: the expected `sales_amount` column is absent, while `gross_sales` and `net_sales` are present. Replacing the missing name with either one would make the error disappear. Which would make the report correct?
+
+That finding changes the next useful action. The model requests documentation explaining the columns and the report’s calculation rules. Together, they establish that the report expects sales before refunds, while `net_sales` has refunds deducted. The model can now propose using `gross_sales` and select a check against a small example with a known total. If the definitions were unavailable or contradictory, asking for clarification would be a better next step than guessing.
+
+The application executes each allowed operation and sends its result back. The model uses that new context to select another operation or decide it has enough evidence to respond. ([huggingface.co][2]) In this example, seeing two plausible columns prompted a check of their meaning before an edit. That is where delegated control becomes useful: the investigation adapts to what it discovers.
+
+<Mermaid
+  label="Agent decision loop"
+  chart={`flowchart TD
+    M{"Model chooses next step"} -->|Use a tool| A["Application runs allowed tool"]
+    A --> R["Result enters model context"]
+    R --> M
+    M -->|Done or blocked| F["Finish or ask for help"]`}
+/>
+
+The loop makes the mechanism visible, although workflows can contain loops too. For this report, the practical distinction is who selects the investigation’s next step. You can allow the model to investigate and recommend while reserving edits for a person. Giving a system agency does not require giving it unrestricted access or permission to publish the report. Those are separate choices about what its tools may do. ([cdn.openai.com][4])
+
+That separation helps answer the architecture question. If you can supply the relevant evidence and want a specific output—an explanation of the error or a proposed repair—start with a direct LLM call. Your application or its user can handle the surrounding decisions. Needing a strong model to understand difficult code does not, by itself, create a need to delegate the investigation.
+
+If the repair follows a procedure you understand, encode that procedure as a workflow. For this report, a controlled input format and familiar validation checks might make that straightforward. A process can be lengthy without needing flexible decision-making. You gain little by asking the model to rediscover steps your team has already established and can reliably implement.
+
+Consider an agent when discoveries regularly change which evidence or action will be useful next, and capturing those choices in explicit rules becomes difficult to maintain. In the column example, checking meaning was valuable because either replacement could appear technically successful. The benefit to seek is better decisions during execution. More tool calls, longer plans, and more elaborate activity are poor substitutes for that benefit.
+
+Those additional decisions also need limits. For the report, start with access to relevant files, edits confined to a working copy, and a maximum investigation budget. The system should stop and ask for help when it cannot establish the columns’ meaning. Application permissions should enforce these boundaries; a prompt asking the model to be careful is insufficient. Approval before publishing the finished report can remain a separate requirement. ([cdn.openai.com][4])
+
+Success also needs a definition stronger than “the script ran.” A report can execute successfully while counting the wrong measure of sales. Compare its output with trusted examples and check that the business definition is preserved. Evaluation should examine the actual outcome as well as the system’s account of what it did. ([www.anthropic.com][5]) Track incorrect repairs, review time, and total cost, including repeated attempts and rework, when comparing the designs.
+
+Return to the original failure before choosing an architecture. Which decisions must be made while fixing it, and who should make them? Keep familiar steps in software, use the model where interpretation helps, and delegate further investigation only where adapting to evidence improves the result. The goal is a correct, explainable sales report. The architecture earns its place by helping you deliver one.
+
+## Sources
+
+- Hugging Face: [What are LLMs?](https://huggingface.co/learn/agents-course/en/unit1/what-are-llms) and [What is an Agent?](https://huggingface.co/learn/agents-course/en/unit1/what-are-agents).
+- Anthropic: [Building effective agents](https://www.anthropic.com/engineering/building-effective-agents).
+- OpenAI: [A practical guide to building agents](https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf).
+- Anthropic: [Demystifying evals for AI agents](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents).
+
+[1]: https://huggingface.co/learn/agents-course/en/unit1/what-are-llms "What are LLMs?"
+[2]: https://huggingface.co/learn/agents-course/en/unit1/what-are-agents "What is an Agent?"
+[3]: https://www.anthropic.com/engineering/building-effective-agents "Building effective agents"
+[4]: https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf "A practical guide to building agents"
+[5]: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents "Demystifying evals for AI agents"

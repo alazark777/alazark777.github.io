@@ -111,4 +111,16 @@ html[data-theme='dark'] .button-primary {
   .prose-content pre code {
     @apply bg-transparent p-0 text-surface;
   }
+
+  .article-diagram {
+    @apply my-8 overflow-x-auto rounded-lg border border-border bg-surface-raised p-4;
+  }
+
+  .article-diagram svg {
+    @apply mx-auto block h-auto min-w-[600px] max-w-full;
+  }
+
+  .article-diagram figcaption {
+    @apply mt-3 text-center text-sm text-ink-subtle;
+  }
 }

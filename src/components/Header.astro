@@ -104,6 +104,7 @@ function isActive(href: string): boolean {
       document.documentElement.dataset.theme = isDark ? 'light' : 'dark';
       localStorage.setItem('portfolio-theme', isDark ? 'light' : 'dark');
       updateThemeToggle();
+      window.dispatchEvent(new CustomEvent('portfolio-theme-change'));
     });
 
     updateThemeToggle();

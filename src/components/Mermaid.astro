@@ -1,0 +1,49 @@
+---
+interface Props {
+  chart: string;
+  label?: string;
+}
+
+const { chart, label = 'Diagram' } = Astro.props;
+---
+
+<div
+  class="article-diagram mermaid-container"
+  data-mermaid-chart={chart}
+  role="img"
+  aria-label={label}
+>
+  <p class="text-sm text-ink-subtle">Loading diagram…</p>
+</div>
+
+<script>
+  import mermaid from 'mermaid';
+
+  const containers = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-mermaid-chart]'),
+  );
+
+  async function renderDiagrams() {
+    const isDark = document.documentElement.dataset.theme === 'dark';
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: 'strict',
+      theme: isDark ? 'dark' : 'default',
+    });
+
+    for (const [index, container] of containers.entries()) {
+      const chart = container.dataset.mermaidChart;
+      if (!chart) continue;
+
+      const { svg, bindFunctions } = await mermaid.render(
+        `mermaid-diagram-${index}-${Date.now()}`,
+        chart,
+      );
+      container.innerHTML = svg;
+      bindFunctions?.(container);
+    }
+  }
+
+  renderDiagrams();
+  window.addEventListener('portfolio-theme-change', renderDiagrams);
+</script>
