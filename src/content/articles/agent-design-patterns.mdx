@@ -6,6 +6,7 @@ tags: ["AI Engineering", "Agents", "Evaluation"]
 featured: false
 draft: false
 ---
+import Mermaid from '../../components/Mermaid.astro';
 
 A customer writes: “I was charged twice, and my order still hasn’t arrived.”
 
@@ -15,7 +16,7 @@ These are all familiar agent design patterns, but they do not describe the same 
 
 ## Why pattern lists differ
 
-There is no single, mutually exclusive list of agent patterns. Google Cloud uses the term broadly for architectures that organize a single agent or multiple agents. Anthropic makes a useful distinction between a **workflow**, where code determines the path, and an **agent**, where a model directs its process and tool use. Microsoft’s orchestration guide concentrates on patterns for coordinating multiple agents. Their lists overlap because their scopes differ, not necessarily because they disagree. Anthropic notes that tooling details in its article have changed since publication; here, it supports the architectural distinction rather than a current implementation recommendation. ([Google Cloud](https://docs.cloud.google.com/architecture/choose-design-pattern-agentic-ai-system); [Anthropic](https://www.anthropic.com/engineering/building-effective-agents); [Microsoft](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns))
+There is no single, mutually exclusive list of agent patterns. Google Cloud uses the term broadly for architectures that organize a single agent or multiple agents. Anthropic makes a useful distinction between a **workflow**, where code determines the path, and an **agent**, where a model directs its process and tool use. Microsoft’s orchestration guide concentrates on patterns for coordinating multiple agents. Their lists overlap because their scopes differ, not necessarily because they disagree. Anthropic notes that tooling details in its article have changed since publication; here, it supports the architectural distinction rather than a current implementation recommendation. The families below are a practical map, not a standardized, exhaustive catalogue. ([Google Cloud](https://docs.cloud.google.com/architecture/choose-design-pattern-agentic-ai-system); [Anthropic](https://www.anthropic.com/engineering/building-effective-agents); [Microsoft](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns))
 
 It helps to sort the patterns into layers:
 
@@ -68,6 +69,32 @@ A related, more plan-centered variant makes the plan explicit in a **task ledger
 
 **Multi-agent loop.** Some guides name a workflow-level loop separately: code repeats a known sequence of specialized agents until a state or iteration limit is reached. This differs from the single-agent tool loop: the workflow repeats predefined stages, while an agent loop chooses actions from each new observation. A generator–critic cycle can implement this pattern when the generator and critic are separate agents. Because each cycle can add cost without progress, define an exit condition and fallback. ([Google Cloud](https://docs.cloud.google.com/architecture/choose-design-pattern-agentic-ai-system))
 
+**Figure 1. Two loops can repeat for different reasons.** In the first, the agent selects its next action from new evidence, within a budget enforced by the system. In the second, a code-controlled workflow repeats a fixed sequence of agents until its exit condition is met.
+
+<Mermaid
+  label="Agent design pattern diagram"
+  chart={`flowchart TB
+  subgraph single["Single-agent tool loop"]
+    direction TB
+    E["Current evidence"] --> D{"Agent's next move"}
+    D -->|Use tool| T["Call selected tool"]
+    T --> O["Observe result"]
+    O --> LIMIT{"Budget remains?"}
+    LIMIT -->|Yes| E
+    LIMIT -->|No| R["Return result or state uncertainty"]
+    D -->|Done| R
+  end
+
+  subgraph fixed["Workflow-level loop"]
+    direction TB
+    C["Code controller"] --> A["Agent A: produce"]
+    A --> B["Agent B: check"]
+    B --> X{"Exit condition met?"}
+    X -->|No, within limit| C
+    X -->|Yes or cap reached| Y["Return result or escalate"]
+  end`}
+/>
+
 **Evaluator–optimizer (generator–critic).** One component produces a candidate; another checks it against explicit criteria and sends actionable feedback for revision. For the support reply, the checker could flag “The draft calls this a duplicate charge, but the second transaction is still pending.” A vague instruction such as “make the answer better” gives the generator little to fix.
 
 This is a feedback pattern, not a separate coordination topology. The evaluator may be another agent, a model call within one agent’s process, or code for directly testable conditions. Google describes review and critique as one implementation of a loop; Anthropic presents evaluator–optimizer as a composable workflow. In all cases, set an iteration limit and a fallback. A critic can share the generator’s blind spots, approve unsupported claims, or keep requesting revisions without improving the result. ([Google Cloud](https://docs.cloud.google.com/architecture/choose-design-pattern-agentic-ai-system); [Anthropic](https://www.anthropic.com/engineering/building-effective-agents))
@@ -90,6 +117,33 @@ This is a feedback pattern, not a separate coordination topology. The evaluator 
 | Consequential action needs authorization | Human approval gate | Approval detached from the exact action |
 
 A practical support design could combine several: validate the customer and order with a fixed intake workflow; check billing and shipping records in parallel; use a tool loop only if an ambiguous transaction needs investigation; run the draft through a grounded checker; require approval before a refund. If the fixed checks settle the case, there is no reason to add a coordinator or swarm.
+
+**Figure 2. One possible composition for the support case.** The billing and shipping checks can be ordinary API calls or agents; the investigation and drafting are agent-led. A bounded checker loop reviews claims, and human approval applies only when the system proposes a refund.
+
+<Mermaid
+  label="Agent design pattern diagram"
+  chart={`flowchart TB
+  U["Support case: billing and delivery issue"] --> I["Fixed intake"]
+  I --> P["Billing check: API or agent"]
+  I --> S["Shipping check: API or agent"]
+  P --> G["Gather evidence"]
+  S --> G
+  G --> A{"Agent has enough evidence?"}
+  A -->|No, budget remains| T["Agent selects a read-only lookup"]
+  T --> O["Tool returns observation"]
+  O --> A
+  A -->|Yes| D["Agent drafts answer"]
+  A -->|No, budget spent| Q["Return qualified reply or escalate"]
+  D --> C["Checker compares claims with records and policy"]
+  C --> V{"Claims supported?"}
+  V -->|No, revision budget remains| D
+  V -->|No, cap reached| Q
+  V -->|Yes| R{"Refund proposed?"}
+  R -->|No| W["Send response; no refund issued"]
+  R -->|Yes| H["Person reviews exact order and amount"]
+  H -->|Approved| X["Issue refund"]
+  H -->|Declined| W`}
+/>
 
 Evaluate the complete system on representative cases, not just whether its conversation sounds coherent. Include a real duplicate charge, a pending authorization, split shipments, missing or contradictory records, and a refund the assistant may recommend but cannot issue. Check whether the system resolves the task correctly, exposes uncertainty, respects permissions, and stops when it should; also measure latency and cost. A pattern earns its place when it measurably addresses a need your simpler design cannot meet.
 
