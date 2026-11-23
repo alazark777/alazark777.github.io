@@ -1,0 +1,178 @@
+---
+title: "How Do You Build an AI Agent? A Survey of Platforms, SDKs, and Frameworks"
+description: "A practical map of managed agent platforms, provider SDKs, independent frameworks, and low-code tools—and how to choose by architecture and need."
+date: 2026-11-23
+tags: ["AI Engineering", "Agents", "LLMs"]
+featured: true
+draft: false
+---
+
+# How Do You Build an AI Agent? A Survey of Platforms, SDKs, and Frameworks
+
+*Part 1 of an agent-engineering series | Updated November 23, 2026*
+
+The agent ecosystem has a naming problem. AWS has AgentCore and Strands. Google has an Agent Platform and an Agent Development Kit. OpenAI offers an Agents SDK and a managed Agents API. Then come LangGraph, LangChain, CrewAI, LlamaIndex, and dozens of others. Are they competing products?
+
+**Not necessarily.** They often solve different parts of the same problem. Before choosing a framework, separate two questions:
+
+1. **Who runs and operates the agent?** You, or a managed platform?
+2. **Who supplies the agent's decision-and-tool-execution loop?** Your own code, a framework, or a managed service?
+
+An agent, in this article, is an application that can use an LLM to decide which tools or actions to invoke in pursuit of a goal. A simple prompt-response application does not necessarily need an agent framework.
+
+## 1. The five ways to build an agent
+
+| Approach | What you get | What you still own |
+|---|---|---|
+| **Managed agent platform** | Hosted runtime plus varying combinations of orchestration, tools, identity, state, evaluation, and operations | Business behavior, data access, permissions, integration, validation |
+| **Provider agent SDK** | Code libraries for the agent loop, tools, handoffs, and/or state | Application deployment unless paired with managed hosting |
+| **Independent agent framework** | Reusable orchestration and integrations, usually model/provider-flexible | Hosting and the surrounding application |
+| **Visual/low-code builder** | Drag-and-drop flows, connectors, and deployment surfaces | Integration quality, governance, and limitations of the builder |
+| **Direct model API + your own code** | Maximum design control with the fewest framework abstractions | Agent loop, state, retries, observability, and everything else you need |
+
+**These categories overlap.** For example: build an agent in LangGraph, expose its tools through MCP, and deploy the application to Amazon Bedrock AgentCore or Microsoft Foundry Agent Service. The framework controls orchestration; the cloud platform operates the runtime.
+
+![Two independent architecture decisions: who controls the agent loop and who runs the application. Frameworks and managed runtimes can be combined.](/images/agent-frameworks/agent_architecture_layers.png)
+
+*Figure 1. Agent orchestration and application hosting are separate choices.*
+
+## 2. Managed platforms: the cloud provider runs more of the agent
+
+The major vendors now offer more than hosted LLM inference. Their agent platforms add some combination of execution, tools, security, state, and observability. But the degree of management—and whether they provide the *agent loop* or merely host *your* loop—varies considerably.
+
+| Provider / product | What it is | Choose it when… | Watch for… |
+|---|---|---|---|
+| **AWS — Amazon Bedrock AgentCore** | Managed agent infrastructure including runtime, tool gateway, identity, memory, and a managed harness; can host agents written with other frameworks | Your organization is on AWS and needs operational controls without creating them all from scratch | AgentCore is not itself the same thing as the Strands SDK; some capabilities are separate services/features |
+| **AWS — Bedrock Managed Agents, powered by OpenAI (preview)** | A more opinionated managed agent option built around an OpenAI harness on AWS | A managed OpenAI-powered agent under AWS integration is the requirement | Preview status, regional availability, and product-specific constraints |
+| **Google Cloud — Gemini Enterprise Agent Platform** | Google's enterprise agent-development and operations platform, evolved from Vertex AI; includes **Agent Runtime**, **Agent Studio** (low-code), and services for tools/data/evaluation | You're building within Google Cloud or need its managed agent lifecycle | **ADK** is the development framework; **Agent Runtime** runs the agent; **Agent Studio** is the visual builder |
+| **Microsoft — Foundry Agent Service** | Managed agent service with prompt-defined agents and hosted agents built from your own code | You need Azure/Foundry integration, managed lifecycle, and enterprise identity/governance | **Microsoft Agent Framework** is a code framework, not the hosted service |
+| **OpenAI — Agents API** | OpenAI-managed **Codex harness** for running tool-using agent sessions | You want the managed Codex-style harness and its capabilities | Not a generic substitute for all business-process agent runtimes |
+| **Anthropic — Claude Managed Agents (beta)** | Managed Claude agent loop and session environment, with tools and sandbox execution | You want Anthropic to host the agent harness and session workspace | Distinct from the self-hosted **Claude Agent SDK**; beta features/limits apply |
+| **Databricks — Agent Bricks** | Build/run/govern agent capabilities closely integrated with Databricks data and evaluation infrastructure; accommodates multiple frameworks | Data governance, lakehouse context, and enterprise analytics dominate | Best fit depends on an existing Databricks footprint |
+
+**Other enterprise-specific platforms** are important but less directly interchangeable: **IBM watsonx Orchestrate** (enterprise process agents, with its own ADK); **Salesforce Agentforce** (CRM-centered agents); **Microsoft Copilot Studio** (Microsoft 365 and business-process agents); **ServiceNow AI Agent Studio** (service workflows); **Oracle AI Agent Studio** (Fusion Applications); and **UiPath** (automation and agent orchestration). They are especially attractive when the agent's actions already live in those ecosystems.
+
+**Important 2026 product changes:** AWS's earlier **Bedrock Agents** is now **Bedrock Agents Classic**, closed to new customers since July 30, 2026. Google's current branding is **Gemini Enterprise Agent Platform**, not just the older Vertex AI Agent Builder label. Microsoft has consolidated the former Azure AI Foundry branding under **Microsoft Foundry**. **OpenAI Agent Builder**, its earlier visual workflow product, is scheduled to shut down **November 30, 2026**; for new code-first projects, consider the Agents SDK or the managed Agents API instead. **ChatKit** continues separately as a chat UI toolkit. These distinctions matter when following tutorials or selecting a new service.
+
+## 3. Provider SDKs: you write the agent, the vendor supplies building blocks
+
+Most major model/cloud providers also publish an **agent development kit or SDK**. These are libraries you import into a normal application; using one does **not**, by itself, mean the provider hosts your agent.
+
+| SDK | Main idea | Why choose it |
+|---|---|---|
+| **OpenAI Agents SDK** (Python / TypeScript) | Lightweight agents with tools, handoffs, sessions, guardrails, and tracing | Direct, relatively minimal abstraction for agent workflows, especially with OpenAI APIs |
+| **Google Agent Development Kit (ADK)** | Code-first framework for tool-using and multi-agent workflows; model- and deployment-flexible | Google Cloud alignment, explicit agent structures, and optional deployment to Agent Runtime |
+| **AWS Strands Agents** (Python / TypeScript) | Model-driven agent harness with configurable tools and providers | An AWS-aligned but separately deployable open-source agent SDK |
+| **Anthropic Claude Agent SDK** (Python / TypeScript) | The Claude Code-style harness as a library, with built-in filesystem, shell, and related tools | Agents that genuinely need workspace/code/file operations; requires careful tool permissions |
+| **Microsoft Agent Framework** (Python / .NET and other language support) | Unified agent/workflow framework building on AutoGen and Semantic Kernel ideas | .NET/Python enterprises, type-safe integrations, structured multi-agent orchestration |
+| **IBM watsonx Orchestrate ADK** | Code-first authoring for agents, tools, and extensions in the watsonx Orchestrate ecosystem | You're deploying into IBM's orchestration platform |
+
+A key distinction is **SDK versus managed runtime**: an agent written with Google ADK can run in your own container; an OpenAI Agents SDK application can be hosted by your own service; a Strands agent can run outside AWS. The provider's *models* and the location of your *agent application* are separate decisions.
+
+OpenAI also has the **Responses API**, and Anthropic has the **Messages API** and a tool runner. These can support agents without adopting the corresponding higher-level agent SDK. An API client library is not automatically a full agent framework.
+
+## 4. Independent, open-source frameworks: choose by the problem shape
+
+This is the broadest category. The frameworks aren't simply interchangeable implementations of “an agent.” Their organizing abstractions differ.
+
+| Framework | Organizing idea | A good reason to choose it |
+|---|---|---|
+| **LangChain** | High-level model/tool integrations and prebuilt agent loop | A standard tool-using agent with broad integrations, without defining every workflow state yourself |
+| **LangGraph** | Explicit, stateful graph orchestration with checkpoints and human interrupts | Long-running or auditable workflows with branching, persistence, and controlled human review |
+| **Deep Agents** (LangChain ecosystem) | Higher-level harness atop LangChain/LangGraph, including planning and subagents | More autonomous, multi-step workspace-style tasks without building the harness from scratch |
+| **CrewAI** | Role-oriented **Crews** coordinated through **Flows** | Work naturally divided among collaborating specialists, with a flow governing the process |
+| **LlamaIndex** | Data-centric agents and event-driven workflows, with strong retrieval/document tooling | Agents whose hardest problem is understanding, retrieving, and using enterprise data |
+| **Haystack** | Composable retrieval pipelines plus agents/tools | Retrieval-heavy, document-grounded applications that mix deterministic pipelines with tool-using agents |
+| **PydanticAI** | Typed Python agents, dependency injection, validated outputs, optional graphs | Teams that value type safety, explicit Python control flow, and testable contracts |
+| **Hugging Face smolagents** | Minimal tool-using and code-acting agents | Lightweight experimentation or control over open-model agent loops; sandbox code execution carefully |
+| **Agno** | Developer-oriented agent/team/workflow platform with memory and tooling | You prefer integrated agent-development primitives and its ecosystem |
+| **Mastra** | TypeScript-first agents and workflows | TypeScript/Node-based AI backends seeking agent tools and workflow support in one framework |
+| **Vercel AI SDK** | TypeScript AI application primitives, tool loops, streaming, and workflows | Web-first TypeScript applications with tightly integrated UI/streaming needs |
+| **Google Genkit** | Full-stack AI and agent application framework across several languages | Application developers wanting cohesive AI flows, tools, and observability beyond Google Cloud alone |
+| **Letta** | Stateful agents with persistent, editable memory | Long-lived agents where memory management is a first-class design concern |
+| **LangChain4j / Spring AI** | Java/JVM AI integrations, tool loops, RAG, and agent capabilities | Organizations building inside a Java/Spring architecture |
+
+### Three names that are especially easy to mix up
+
+**LangChain ≠ LangGraph ≠ Deep Agents.** LangChain is the higher-level agent framework; **LangGraph** is the lower-level durable orchestration runtime; **Deep Agents** provides a richer ready-made harness. They are compatible layers, not three mutually exclusive vendors. For a straightforward tool-calling agent, LangChain may suffice. For carefully modeled business states and human approval, LangGraph offers finer control.
+
+**CrewAI ≠ “you must use multiple agents.”** CrewAI supports explicit **Flows** for structured state and control; Crews are useful when several specialized agents actually add value. Multi-agent design should not be the default purely for architectural appearance.
+
+**LlamaIndex ≠ only RAG.** It is particularly strong around data ingestion and retrieval, but also supplies agent workflows and tool orchestration. Likewise, Haystack is not merely a search library; it can combine pipelines and agents.
+
+### Additional frameworks worth knowing
+
+**CAMEL-AI, AgentScope, MetaGPT, AutoGPT, and Rasa** target particular multi-agent, automation, or conversational architectures. **AutoGen** and **Semantic Kernel** remain influential names, but Microsoft now directs new development toward **Microsoft Agent Framework**. **DSPy** is valuable for optimizing LM programs against evaluation metrics, but is *not* primarily a substitute for an agent execution framework. **Temporal, Restate, and Inngest** are durable workflow/execution layers that can complement agent frameworks rather than replace model/tool abstractions.
+
+This is a broad landscape survey, not a claim that every listed product has the same maturity, licensing, hosting model, or production guarantees.
+
+## 5. Visual and low-code alternatives
+
+Not every team needs to author an agent loop in Python or TypeScript.
+
+| Tool | Characteristic use |
+|---|---|
+| **Dify** | Visually designed AI workflows, RAG, tools, publishing and operations |
+| **Langflow** | Drag-and-drop LLM/agent compositions with API and MCP integration |
+| **Flowise** | Visual chatflows and agentflows, especially for integrations and prototypes |
+| **n8n** | Business automation with an AI Agent node; strongest when actions span existing SaaS systems |
+| **Google Agent Studio** | Visual agent design within Gemini Enterprise Agent Platform |
+| **Microsoft Copilot Studio** | Low-code business agents integrated with Microsoft ecosystems |
+| **Salesforce Agentforce Builder** | Agent behavior deeply coupled to Salesforce CRM workflows |
+| **IBM watsonx Orchestrate Flow Builder** | Enterprise process orchestration and agent integration |
+
+Choose these when connectors, delivery speed, and business-user collaboration matter more than custom execution semantics. **Do not assume visual means ungoverned or incapable of production use**—but inspect version control, testability, extensibility, and operational controls before committing.
+
+## 6. Do you need a framework at all?
+
+**No.** A small agent can be built with a model API, a few tool definitions, and a loop:
+
+`Request → model proposes tool call → application authorizes/executes tool → result returns to model → final response`
+
+A deterministic workflow with an LLM at one step may be even simpler—and more predictable—than an autonomous agent. Frameworks become valuable when they remove real complexity: persistent state, branching, retries, approvals, multi-agent delegation, tracing, or integrations. They also add dependencies, conventions, and sometimes hidden behavior.
+
+Neither **RAG** (a retrieval pattern) nor **MCP** (a tool-integration protocol) is itself an agent framework. Both can be used *with* many of the choices above.
+
+## 7. How to choose—without treating it as a popularity contest
+
+| Your dominant requirement | Start by evaluating | Why / trade-off |
+|---|---|---|
+| Avoid managing agent runtime infrastructure | AgentCore, Gemini Enterprise Agent Platform, Microsoft Foundry Agent Service, Claude Managed Agents | Managed lifecycle; less operational control and more platform dependence |
+| Small custom tool-using agent | Direct API, OpenAI Agents SDK, PydanticAI, LangChain | Fewer layers; add orchestration only when required |
+| Auditable, stateful workflow with human approval | LangGraph, Microsoft Agent Framework, or a durable workflow engine plus SDK | Explicit control; more workflow code |
+| Multiple cooperating specialists | CrewAI, Google ADK, Microsoft Agent Framework, LangGraph | Express delegation naturally; higher coordination and evaluation burden |
+| Document-intensive agent or advanced retrieval | LlamaIndex, Haystack, or LangChain-based tooling | Strong data/retrieval abstractions; retrieval quality remains your responsibility |
+| TypeScript product with streaming UI | Vercel AI SDK or Mastra | Native TS ergonomics; fit depends on backend and workflow needs |
+| AWS-first team | AgentCore + Strands or another supported framework | Cloud governance with freedom to bring orchestration code |
+| Google-first team | ADK + Agent Runtime | Coherent developer-to-managed-runtime path |
+| Microsoft/.NET-first team | Microsoft Agent Framework + Foundry Agent Service | Strong ecosystem alignment |
+| Existing CRM/ITSM/ERP automation | Agentforce, ServiceNow, Copilot Studio, watsonx Orchestrate, Oracle AI Agent Studio | Deep platform access; potential vendor and domain coupling |
+| Mostly SaaS automation / visual process design | n8n, Dify, Flowise, Langflow | Faster configuration; less flexible for unusual control requirements |
+
+The practical selection test is simple: **Which tool removes the most complexity *specific to the application* without giving up control over the behavior that matters?** Compare the candidates with the *same* representative workflow and check state recovery, approvals, traceability, integrations, and deployment requirements—not just how short the “hello world” example is.
+
+![Framework selection guide mapping common requirements to starting points, including runtime governance, durable workflows, retrieval, multi-agent patterns, TypeScript, and low-code.](/images/agent-frameworks/agent_selection_guide.png)
+
+*Figure 2. Start with the problem you need to solve; the examples are starting points, not exclusive choices.*
+
+## 8. Final clarification: Cloud Foundry is not Microsoft Foundry
+
+**Cloud Foundry** is a general-purpose open-source platform as a service (PaaS). It can host agent applications, but it is **not** a dedicated agent-building service like **Microsoft Foundry Agent Service**. Similar names, different roles.
+
+### The takeaway
+
+The most useful distinction is **not** “LangGraph versus AWS versus OpenAI.” Those products sit at different layers. First decide whether you want a **managed agent runtime** or will host the application yourself. Then choose the **orchestration abstraction** that matches the actual workflow. Only then decide which model, retrieval system, tool protocol, and user interface to connect.
+
+---
+
+### Selected primary references
+
+- **AWS:** [AgentCore overview](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html) · [Agents Classic status](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-classic-maintenance-mode.html) · [Strands Agents](https://strandsagents.com/docs/)
+- **Google:** [Gemini Enterprise Agent Platform](https://docs.cloud.google.com/gemini-enterprise-agent-platform/overview) · [Agent Development Kit](https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/adk)
+- **Microsoft:** [Foundry Agent Service](https://learn.microsoft.com/en-us/azure/foundry/agents/overview) · [Microsoft Agent Framework](https://learn.microsoft.com/en-us/agent-framework/overview)
+- **OpenAI:** [Agent choices](https://developers.openai.com/api/docs/guides/agents) · [Agents SDK](https://openai.github.io/openai-agents-python/) · [Agent Builder deprecation](https://developers.openai.com/api/docs/deprecations)
+- **Anthropic:** [Claude Managed Agents](https://platform.claude.com/docs/en/managed-agents/overview) · [Claude Agent SDK](https://code.claude.com/docs/en/agent-sdk/overview)
+- **Independent frameworks:** [LangChain ecosystem distinctions](https://www.langchain.com/blog/deep-agents-vs-langchain-vs-langgraph) · [CrewAI](https://docs.crewai.com/) · [LlamaIndex agents](https://developers.llamaindex.ai/python/framework/understanding/agent/) · [Haystack](https://docs.haystack.deepset.ai/docs/agent) · [PydanticAI](https://pydantic.dev/docs/ai/overview/) · [Vercel AI SDK](https://vercel.com/ai-sdk)
+- **Other platforms/builders:** [Databricks Agent Bricks](https://docs.databricks.com/aws/en/agents/concepts) · [IBM watsonx Orchestrate](https://www.ibm.com/products/watsonx-orchestrate/developers) · [Dify](https://www.dify.ai/workflows) · [Langflow](https://docs.langflow.org/) · [Cloud Foundry](https://docs.cloudfoundry.org/)
+
+*Product names, availability, and platform capabilities were checked against vendor documentation available November 23, 2026. Exact service entitlements, regional support, and licensing should be confirmed before procurement.*
