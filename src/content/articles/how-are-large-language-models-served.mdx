@@ -1,0 +1,70 @@
+---
+title: "How Are Large Language Models Served?"
+description: "The four practical LLM deployment models, from shared APIs to local inference, and how ownership, capacity, and operations differ."
+date: 2026-11-23
+tags: ["AI Engineering", "LLMs", "MLOps"]
+featured: false
+draft: false
+---
+
+*The four practical deployment models—and why “served through an API” is not the same as “hosted in the cloud.”*
+
+Are all LLMs exposed as APIs? No. An application can invoke a model inside its own process through a software library, or a person can run it through a command-line tool. But when a model must serve other applications or users over a network, it is typically exposed through an API (often HTTP, sometimes gRPC). An API describes how you access the model; it does not tell you who runs it or where it runs.
+
+The more useful way to classify LLM serving is by **who operates the inference infrastructure** and whether the capacity is **shared or dedicated**.
+
+## 1. Shared managed model API
+
+**How it works:** A provider hosts the model and operates a shared inference service. Your application sends requests to the provider’s endpoint; the provider schedules and executes them on its infrastructure and returns responses. You do not deploy or manage model servers.
+
+**Examples:** OpenAI API, Google Gemini API, Amazon Bedrock on-demand inference.
+
+**Trade-off:** Minimal operational responsibility, but limited control over the model runtime and underlying capacity. Shared service does **not** mean customers share conversation data.
+
+## 2. Dedicated managed model endpoint
+
+**How it works:** A provider still deploys and operates the model, but you provision an endpoint or reserve serving capacity for a particular deployment or workload. Your application calls its API; the provider manages the underlying infrastructure. The exact isolation and capacity guarantees depend on the service.
+
+**Examples:** Managed dedicated model deployments on Vertex AI; provisioned inference capacity offered by cloud model platforms.
+
+**Trade-off:** More control over capacity and deployment characteristics, generally with greater cost or resource commitments than on-demand shared APIs.
+
+## 3. Self-hosted model service
+
+**How it works:** You obtain compatible model weights and run an inference server on machines you manage—whether on premises or rented in the cloud. The server loads the model and exposes an endpoint that your applications call. You operate deployment, compute, availability, and updates.
+
+**Example:** Running an open-weight model with vLLM on a GPU VM or Kubernetes cluster.
+
+**Note — GPU VM versus Kubernetes:** The model is served by **vLLM in both cases**, through the same kind of API. On a **GPU VM**, you start and manage the inference server on a virtual machine. On **Kubernetes**, vLLM runs in a GPU-enabled container or pod, while Kubernetes handles deployment, scheduling, restarts, and service routing. Kubernetes orchestrates vLLM; it does not replace the inference server or inherently make inference faster.
+
+**Note — which models can you host?** Self-hosting generally requires access to model weights and permission to run them. **Open-weight models** such as Llama, Gemma, and OpenAI **gpt-oss** can be self-hosted under their respective licenses. **Standard proprietary GPT and Gemini models** do not provide downloadable weights for independent vLLM deployment; they are normally accessed through provider APIs. There are exceptions for **vendor-authorized private deployments**, such as Gemini on Google Distributed Cloud, where proprietary models can run on customer premises under specific arrangements. Such deployments are not the same as freely downloading model weights and may be vendor-managed rather than independently self-hosted.
+
+**Trade-off:** Greater control over the deployment and data path, with responsibility for infrastructure and model operations. Renting cloud GPUs is still **self-hosting** if you operate the serving software.
+
+## 4. Local or embedded inference
+
+**How it works:** The model runs directly on the user’s machine or inside an application. It may be called through an in-process library or CLI, so no network API is required. A local program can optionally expose an API to other processes.
+
+**Examples:** An application using llama.cpp directly; an Ollama model run locally.
+
+**Trade-off:** Local execution and offline possibilities, constrained by device resources. If a local model is exposed as a network service, it also fits the **self-hosted service** category—the categories describe different aspects of the setup.
+
+## The distinction that matters
+
+| Serving model | Who operates the model? | How the application accesses it |
+| --- | --- | --- |
+| Shared managed API | Provider | Provider API |
+| Dedicated managed endpoint | Provider | Provisioned endpoint API |
+| Self-hosted service | Your team | Your own API endpoint |
+| Local or embedded | Application or device owner | Library, CLI, or optional local API |
+
+**Bottom line:** Nearly every remotely served LLM is accessed through an API. The architectural decision is not “API or no API?” but **“Who hosts and operates the model, and under what capacity arrangement?”** Public versus private networking, streaming versus batch processing, and the choice of inference engine are separate dimensions, not additional hosting categories.
+
+## Sources
+
+- Amazon Bedrock: [Invoke API and inference modes](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-api.html) and [On-demand and provisioned throughput](https://docs.aws.amazon.com/bedrock/latest/userguide/scaling-throughput-best-practices.html).
+- Google Cloud: [Shared, dedicated, and private prediction endpoints](https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/predictions/choose-endpoint-type).
+- vLLM: [OpenAI-compatible self-hosted server](https://docs.vllm.ai/en/latest/serving/online_serving/openai_compatible_server/) and [Deployment on Kubernetes](https://docs.vllm.ai/en/stable/deployment/k8s/).
+- Ollama: [Local model usage and CLI](https://github.com/ollama/ollama).
+- OpenAI: [gpt-oss open-weight models](https://openai.com/open-models/).
+- Google Cloud: [Gemini on Google Distributed Cloud](https://docs.cloud.google.com/distributed-cloud/gemini-on-gdcc/latest/docs/overview).
