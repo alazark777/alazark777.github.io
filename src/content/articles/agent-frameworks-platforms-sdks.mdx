@@ -20,6 +20,10 @@ The agent ecosystem has a naming problem. AWS has AgentCore and Strands. Google 
 
 An agent, in this article, is an application that can use an LLM to decide which tools or actions to invoke in pursuit of a goal. A simple prompt-response application does not necessarily need an agent framework.
 
+![Two independent architecture decisions: who controls the agent loop and who runs the application. Frameworks and managed runtimes can be combined.](/images/agent-frameworks/agent_architecture_layers.png)
+
+*Figure 1. Agent orchestration and application hosting are separate choices.*
+
 ## 1. The five ways to build an agent
 
 | Approach | What you get | What you still own |
@@ -31,10 +35,6 @@ An agent, in this article, is an application that can use an LLM to decide which
 | **Direct model API + your own code** | Maximum design control with the fewest framework abstractions | Agent loop, state, retries, observability, and everything else you need |
 
 **These categories overlap.** For example: build an agent in LangGraph, expose its tools through MCP, and deploy the application to Amazon Bedrock AgentCore or Microsoft Foundry Agent Service. The framework controls orchestration; the cloud platform operates the runtime.
-
-![Two independent architecture decisions: who controls the agent loop and who runs the application. Frameworks and managed runtimes can be combined.](/images/agent-frameworks/agent_architecture_layers.png)
-
-*Figure 1. Agent orchestration and application hosting are separate choices.*
 
 ## 2. Managed platforms: the cloud provider runs more of the agent
 

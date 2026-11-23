@@ -13,6 +13,10 @@ Are all LLMs exposed as APIs? No. An application can invoke a model inside its o
 
 The more useful way to classify LLM serving is by **who operates the inference infrastructure** and whether the capacity is **shared or dedicated**.
 
+![Four LLM serving models: shared managed API, dedicated endpoint, self-hosted service, and local or embedded inference.](/images/llm-serving/serving-models.png)
+
+*Four serving models, organized by who operates the model and how an application accesses it.*
+
 ## 1. Shared managed model API
 
 **How it works:** A provider hosts the model and operates a shared inference service. Your application sends requests to the provider’s endpoint; the provider schedules and executes them on its infrastructure and returns responses. You do not deploy or manage model servers.
